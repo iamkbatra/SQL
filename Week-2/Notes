@@ -1,0 +1,408 @@
+SQL for Data Science |  UC Davis | Coursera | Week-2
+
+Clause Operator (WHERE), For example:
+SELECT column_name, column_name
+FROM table_name
+WHERE column_name operator value;
+
+Operators and their Description
+= equal
+<> not equal or !=
+> greater than
+< less than
+>= greater than or equal
+<= less than or equal
+BETWEEN between an inclusive range
+IS NULL is a null value
+
+Filtering on a Single Condition, Fo example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE ProductName = 'Tofu';
+
+Filtering on a Single Value, Fo example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE UnitPrice >= 75;
+
+Checking for Non-Matches, For example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE ProductName <> 'AliceMutton';
+
+Filtering with Range of Values, Fo example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+,UnitsInStocks
+FROM Products
+WHERE UnitsInStocks BETWEEN 15 AND 80;
+
+Filtering with No Values, Fo example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+,UnitsInStocks
+FROM Products
+WHERE ProductName is NULL;
+
+Advanced Filtering (IN, OR, AND, NOT)
+IN Operator: Specifies a range of conditions, Comma delimited list of values, Enclosed in (), For example:
+SELECT ProductID
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE SupplierID IN (9,10,11);
+
+OR Operator, For example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE ProductName =  'Tofu' OR 'Konbu';
+
+Benefits of IN:
+Long list of options,
+IN executes faster than OR,
+
+OR with AND Operator, For example:
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE SupplierID =  9 OR SupplierID =  11 AND UnitPrice > 15;
+
+SELECT ProductName
+,UnitPrice
+,SupplierID
+FROM Products
+WHERE (SupplierID =  9 OR SupplierID =  11) AND UnitPrice > 15;
+Note: Good to have the habit of using the ()
+
+NOT Operator, For example:
+SELECT *
+FROM Employees
+WHERE NOT City = 'London' AND NOT City = 'Seattle';
+
+Using Wildcards in SQL
+Use LIKE Operator, For example:
+%Pizza - Grabs anything ending with the word pizza
+Pizza% - Grabs anything after the word pizza
+%Pizza% - Grabs anything before and after the word pizza
+'S%E' - Grabs anything starts with "S" and ends with "E" (Like Sadie)
+'t%@gmail.com' -Grabs gmail address that start with "t" (hoping to find Tom)
+
+Using Underscore(_) wildcards
+Matches a single character.
+Is not supported by DB2
+Fror example:
+WHERE size LIKE '_pizza'
+Output: spizza,  mpizza
+
+Downsides of Wildcards
+Takes longer to run.
+Better to use another operator (=, <, >=, and etc.)
+Statements with wildcards will take longer to run if used at the end of search pattern.
+Placement of wildcards is important.
+
+Sorting with ORDER BY, For example:
+SELECT something
+FROM database
+ORDER BY characteristic
+
+Sorting by Column Position, For example:
+ORDER BY 2,3
+It means data sorted by 2nd and 3rd column.
+
+Sort Directions
+DESC: descending order
+ASC: ascending order
+Only applies to the column names it directly precedes.
+
+>Math Operation (order of operators PEMDAS)
+Parenthese, Exponents, Multiplication, Division, Addition, Subtraction
+
+Multuplication example:
+SELECT ProductID
+,UnitsOnOrder
+,UnitPrice
+,UnitsOnOrder * UnitPrice AS Total_Order_Cost
+FROM Products
+
+Combining Math Operations, For example:
+SELECT ProductID
+,Quantity
+,UnitPrice
+,Discount
+,(UnitPrice - Discount) / Quantity AS Total_Cost
+FROM OrderDetails;
+
+Aggregates Functions 
+AVERAGE, For example:
+SELECT AVG(UnitPrice) AS avg_price
+FROM products;
+
+COUNT(*), For example:
+SELECT COUNT(*) AS total_customers
+FROM Customers;
+
+COUNT(Column_name), For example:
+SELECT COUNT(CustomerID) AS total_customers
+FROM Customers;
+
+MIN and MAX, For example:
+SELECT MAX(UnitPrice) AS max_prod_price
+,MIN(UnitPrice) AS min_prod_price
+FROM Products;
+
+SUM, For example:
+SELECT SUM(UnitPrice) AS total_prod_price
+FROM Products;
+
+DISTINCT, For example:
+SELECT COUNT(DISTINCT CustomerID)
+FROM Customers;
+
+Grouping Data 
+GROUP BY, For example:
+SELECT 
+Region
+,COUNT(CustomerID) AS total_customers
+FROM Customers
+GROUP BY Region;
+
+HAVING, For example:
+SELECT 
+CustomerID
+,COUNT(*) AS orders
+FROM Orders
+GROUP BY CustomerID
+HAVING COUNT(*) >=2;
+
+WHERE vs. HAVING
+WHERE filters before data is grouped.
+HAVING filters after data is grouped.
+Rows elimated by WHERE clause will not be included in the group.
+
+SUMMARY
+"KEY SQL CLAUSES" | SELECT, FROM, WHERE, GROUP BY, HAVING, ORDERBY | For example:
+SELECT 
+SupplierID
+,COUNT(*) AS Num_prod
+FROM Products
+WHERE UnitPrice >= 4
+GROUP BY SupplierID
+HAVING COUNT(*) >=2;
+
+Module-2 Practice Quiz
+
+#1
+SELECT 
+DISTINCT Extended_step
+FROM salary_range_by_job_classification
+
+#2
+SELECT 
+Min(Biweekly_high_Rate)
+FROM salary_range_by_job_classification
+WHERE Biweekly_high_Rate <> '$0.00';
+
+#3
+SELECT 
+Max(Biweekly_high_Rate) 
+FROM salary_range_by_job_classification
+
+#4
+SELECT
+job_code,
+pay_type
+FROM salary_range_by_job_classification
+WHERE job_code LIKE '03%'
+
+#5
+SELECT
+grade,
+eff_date,
+sal_end_date
+FROM salary_range_by_job_classification
+WHERE grade ='Q90H0'
+
+#6
+SELECT 
+Biweekly_low_Rate
+FROM salary_range_by_job_classification
+ORDER BY Biweekly_low_Rate ASC
+
+#7
+SELECT 
+Job_Code,
+Salary_setID,
+Step
+FROM salary_range_by_job_classification
+WHERE Job_Code between "0110" and "0400"
+
+#8
+SELECT 
+Biweekly_high_Rate,
+Biweekly_low_Rate,
+job_code, (Biweekly_high_Rate - Biweekly_low_Rate) AS FINAL_RATE
+FROM salary_range_by_job_classification
+WHERE job_code = '0170
+
+#9
+SELECT
+Extended_step,
+Pay_Type
+FROM salary_range_by_job_classification
+WHERE Pay_Type in ('M', 'H', 'D');
+
+#10
+SELECT 
+Union_code,
+SetID,
+Step
+FROM salary_range_by_job_classification
+WHERE Union_code = 990 and (SetID = 'SFMTA' or SetID = 'COMMN')
+
+Module-2 Quiz
+
+#1 Filtering of data is used to do which of the following.(select all that apply)
+Narrow down the result of data; 
+Reduce the time it takes to run the query; 
+Reduce the strain on the client application;
+Remove unwanted data in a calculation;
+Helps you understand the contents of your data.
+
+#2 You are doing an analysis on musicians that starts with letter "K". Select the correct query that would retrieve only the artists whose name starts with this letter.
+SELECT name
+FROM Artists
+WHERE name IN 'K%';
+
+#3 A null and zero value effectively mean the same thing. True or False?
+False
+
+#4 Select all that are true regarding wildcards.(Select all that apply)
+Wildcards at the end of search pattern take longer to run;
+Wildcards take longer to run compared to a logical operator.
+
+#5 Select the statements below that ARE NOT true of the ORDER BY clause.(Select all that apply)
+Can be anywhere in the select statement;
+Cannot sort by a column not retrieved.
+
+#6 Select all of the valid math operators in SQL.(Select all that apply)
++(addition)
+*(multiplication)
+-(subtraction)
+/(division)
+
+#7 Which of the following is an aggregate function? (Select all that apply)
+MAX()
+MIN()
+COUNT()
+
+#8 Which of the following is true of GROUP BY clauses? (Select all that apply)
+NULLs will be grouped together if your Group by coloumn contains NULL;
+GROUP BY clauses can contain multiple columns;
+Every column in your select statement may/can be present in a group by clause, excep for aggregated calculations.
+
+#9 Select the true statement below.
+HAVING filters after the data is grouped.
+
+#10 Which is the correct order of occurrence in a SQL statement?
+select, from, where, group by, having
+
+Module-2 Coding Questions
+
+#1 Find all the tracks that have a length of 5,000,000 milliseconds or more. 
+SELECT 
+COUNT(TrackId)
+FROM TRACKS
+WHERE Milliseconds >= 5000000
+
+How many tracks are returned?
+2
+
+#2 Find all the invoices whose total is between $5 and $15 dollars.
+SELECT InvoiceID,
+Total
+FROM Invoices
+WHERE Total between "5" and "15";
+
+While the query in this example is limited to 10 records, running the query corrcetly will indicate how many total records there are - enter that number below.
+168
+
+#3 Find all the customers from the following States: RJ, DF, AB, BC, CA, WA, NY.
+SELECT FirstName, 
+LastName, 
+Company, 
+State
+FROM Customers
+WHERE State IN ('RJ','DF','AB','BC','CA','WA','NY');
+
+What company does Jack Smith work for?
+Microsoft Corp
+
+#4 Find all the invoices for customer 56 and 58 where the total was between $1.00 and $5.00.
+SELECT CustomerId, 
+InvoiceId, 
+Total, 
+InvoiceDate
+FROM Invoices
+WHERE CustomerID IN (56,58) AND 
+Total BETWEEN 1 AND 5
+
+What was the invoice date for invoice ID 315?
+10-27-2012
+
+#5 Find all the tracks whose name starts with 'All'.
+SELECT TrackId, 
+Name
+FROM Tracks
+WHERE Name LIKE 'All%'
+
+While only 10 records are shown, the query will indicate how many total records there are - enter that number below.
+15
+
+#6 Find all the customer emails that start with "J" and are from gmail.com.
+SELECT CustomerId, 
+Email
+FROM Customers
+WHERE Email LIKE "J%@gmail.com"
+
+Enter one email address returned(you will likely need to scroll to the right)below:
+jubarnett@gmail.com
+
+#7 Find all the invoices from Brasilia, Edmonton, and Vancouver and sort in descending order by invoice ID.
+SELECT InvoiceId, 
+BillingCity, 
+Total
+FROM Invoices
+WHERE BillingCity IN ('Brasilia','Edmonton','Vancouver')
+ORDER BY InvoiceId DESC
+
+What is the total invoice amount of the first record returned? Enter the number below withou a $ sign
+13.86
+
+#8 Show the number of orders placed by each customer and sort the result by the number of orders in descending order.
+SELECT CustomerId, COUNT(*) AS Orders
+FROM Invoices
+GROUP BY CustomerId
+ORDER BY Orders DESC
+
+What is the number of items bought for the 8th person on the list?
+7
+
+#9 Find the albums with 12 or more tracks.
+SELECT AlbumId, Count(*) AS Ntracks
+FROM Tracks
+GROUP BY AlbumId
+HAVING COUNT (*) >= 12
+
+How many total records there are. Enter that number below
+158
