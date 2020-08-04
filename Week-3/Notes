@@ -1,0 +1,290 @@
+SQL for Data Science |  UC Davis | Coursera | Week-3
+
+Sub-Queries, For example: 
+SELECT CustomerID
+,CompanyName
+,Region
+FROM Customers
+WHERE customerID in (SELECT CustomerID
+FROM Orders
+WHERE Freight > 100);
+
+Working with Subsequery Statements: Always perform the innermost SELECT portion first
+
+DBMS is Performing Two Operations
+Getting the order numbers for the product selected;
+Adding that to the WHERE clause and processing the overall SELECT statement
+
+Subquery Best Practices and Considerations
+There is no limit to the number of subqueries you can have;
+Performance slows when you nest too deeply; 
+Subquery selects can only retrieve a single column
+
+Subquery in Subquery, For example:
+Order numbers for toothbrushes; Customer IDs for those orders; Customer information for those orders
+
+SELECT Customer_name,
+customet_contact
+FROM Customers
+WHERE cust_id IN
+SELECT customer_id
+FROM Orders
+WHERE order_number IN(SELECT order_number
+FROM OrderItems
+WHERE prod_name = 'Toothbrushe');
+
+Subqueries for Calculations, For example:
+Total number of  orders placed by every customer
+SELECT COUNT(*) AS orders
+FROM Orders
+WHERE customer_id = '143569';
+
+SELECT customer_name,
+customer_state(SELECT COUNT(*) AS orders
+FROM Orders
+WHERE Orders.customer_id = Customer.customer_id) AS orders
+FROM customers
+ORDER BY customer_name
+
+The Power of Subqueries
+Subqueries are powerful tools; Not always the best option due to performance
+
+Joining tables: An Introduction
+Benefits of breaking data into tables
+Efficient storage; Easier manipulation; Greater scalability; Logically models a process; Tables are related through common values (keys)
+
+JOINS
+Associate correct records from each table on the fly; Allows data retrieval from multiple tables in one query;
+Joins are not physical, they persist data for the duration of the query execution.
+
+Cartesian (CROSS) JOINS, For example:
+SELECT vendor_name
+,unit_price
+,company_name
+FROM suppliers
+CROSS JOIN products;
+
+Output will the number of joins in the 1st table mutiplied by the number of rows in the 2nd table.
+
+Note:Not frequently used; Computationally taxing,
+
+INNER JOIN: Selects records that have matching values in both tables, For example:
+SELECT suppliers.CompanyName
+,ProductName
+,UnitPrice
+FROM Suppliers INNER JOIN Products
+ON Suppliers.supplierid = Products.supplierid;
+
+INNER JOIN with Mutiple Tables, For example:
+SELECT o.OrderID,
+c.CompanyName,
+e.LastName
+FROM ((Orders o INNER JOIN Customers c ON o.CustomerID = c.CustomerID)
+INNER JOIN Employee e ON o.EmployeeID = e.EmployeeID);
+
+Table Aliases AS, For example:
+SELECT vendor_name
+,product_name
+,product_price
+FROM Vendors AS v, Products AS p
+WHERE v.vendor_id = p.vendor_id;
+
+Self JOINS: Basic self join setup
+SELECT column_names
+FROM Table1 T1, Table2 T2
+WHERE conditions;
+
+Match customers from the same city; Take the table and treat it like two separate tables; Join the original table to itself
+
+Matching the customers from the same city, For example:
+SELECT A.CustomerName AS CustomerName1
+,B.CustomerName AS CustomerName2
+,A.City
+FROM Customers A, Customers B
+WHERE A.CustomerID = B.CustomerID
+AND A.City = B.City
+ORDER BY A.City;
+
+Advanced JOINS
+LEFT JOIN: Return all records from the left table, and the matched records from the right table, For example:
+SELECT Persons.LastName, Persons.FirstName, Orders.OrderNo
+FROM Persons
+LEFT JOIN Orders
+ON Persons.Id_P=Orders.Id_P
+ORDER BY Persons.LastName
+
+Note: SQL Lite only does left joins,
+
+RIGHT JOIN: Return all records from the right table, and the matched records from the left table, For example:
+SELECT Persons.LastName, Persons.FirstName, Orders.OrderNo
+FROM Persons
+RIGHT JOIN Orders
+ON Persons.Id_P=Orders.Id_P
+ORDER BY Persons.LastName
+
+Note: Left Joins can be turned into right joins by reversing the order of tables.
+
+OUTER JOIN: Return all records when there is a match in either left table or right table records, For example:
+SELECT Persons.LastName, Persons.FirstName, Orders.OrderNo
+FROM Persons
+FULL OUTER JOIN Orders
+ON Persons.Id_P=Orders.Id_P
+ORDER BY Persons.LastName
+
+UNIONS: The UNION operator is used to combine the result-set of two or more SELECT statements;
+Each SELECT statement with UNION must have the same number of columns; Columns must have similar data types;
+The columns in each SELECT statement must be in the same order
+
+Basic union set-up
+SELECT column_name(s) 
+FROM table1
+UNION
+SELECT column_name(s) 
+FROM table2;
+
+Which german cities have suppliers, For example:
+SELECT City, 
+Country
+FROM Customers
+WHERE Country='Germany'
+UNION
+SELECT City,
+Country
+FROM Suppliers
+WHERE Country='Germany'
+ORDER BY City;
+
+Note: UNION selects only distinct values; Use UNION ALL to also select duplicate values!
+
+Avoiding duplicate in a Union, For example:
+SELECT * FROM table1
+WHERE a = X
+UNION ALL
+SELECT * FROM table2
+WHERE b = Y AND a!=X;
+
+Practice Quiz - Writing Queries
+
+#1 How many albums does the artist Led Zeppelin have?
+SELECT COUNT(AlbumId) AS TotalAlbums
+FROM albums 
+WHERE ArtistId = (SELECT ArtistId 
+FROM artists 
+WHERE Name = 'Led Zeppelin')
+
+#2 Create a list of album titles and the unit prices for the artist "Audioslave". How many records are returned?
+SELECT n.Name, u.UnitPrice
+FROM ((albums t INNER JOIN artists n ON t.ArtistId = n.ArtistId)
+INNER JOIN tracks u ON t.AlbumId = u.AlbumId)
+WHERE n.Name = 'Audioslave'
+
+#3 Find the first and last name of any customer who does not have an invoice. Are there any customers returned from the query?
+SELECT n.FirstName, n.LastName, i.Invoiceid
+FROM customers n
+LEFT JOIN invoices i ON n.CustomerId = i.CustomerId
+WHERE InvoiceId is NULL
+
+#4 Find the total price for each album. What is the total price for the album “Big Ones”?
+SELECT t.Title, SUM(p.UnitPrice)
+FROM albums t
+INNER JOIN tracks p ON t.Albumid = p.Albumid
+WHERE t.Title = 'Big Ones'
+GROUP BY t.Title
+
+#5 How many records are created when you apply a Cartesian join to the invoice and invoice items table?
+SELECT a.invoiceId
+FROM invoices a CROSS JOIN invoice_items b;
+
+Module-3 Quiz
+
+#1 Which of the following statement is true regarding subqueries?
+Subqueries always process the innermost query first and the work outward.
+
+#2 If you can accomplish the same outcome with a join or a subquery, which one should you always choose?
+Joins are usually faster, but subqueries can be more reliable, so it depends on your situation.
+
+#3 The following diagram depicts what type of join?
+Inner Join
+
+#4 Select which of the following statements are true regarding inner joins.(Select all that apply)
+Inner joins are one of the most popular type of joins use;
+There is no limit to the number of table you can join with an inner join;
+Performance will most likely worsen with the more joins you make.
+
+#5 Which of the following is true regarding Aliases? (Select all that apply)
+Aliases are often used to make column name more readable;
+An alias only exists for the duration of the query:
+SQL aliases are use to give a table, or a column in a table, a temporary name.
+
+#6 What is wrong with the following query?
+SELECT Customers.Customer.Name, Orders.OrderID
+FROM LEFT JOIN ON Customers.CustomerID = Orders.OrderID 
+FROM ORDER AND Customers
+ORDER BY CustomerName;
+Column names do not have an alias
+
+#7 What is the difference between a left and a right join?
+Tha only difference between a left and right join is the order in which the tables are relating.
+
+#8 If you perform a cartesian join on a table with 10 rows and table with 20 rows, how many rows will be there in the output table?
+200 rows
+
+#9 Which of the following statements about UNION is true? (Select all that apply)
+The UNION operator is used to combine the result-set of two or more SELECT statements;
+The columns must also have similat data types;
+Each SELECT statement within UNION must have the same number of columns
+
+#10 Data scientists need to use joins in order to: (select the best answer)
+Retrieve data from multiple tables
+
+Module-3 Coding Assignment
+
+#1 Using a subquery, find the names of all the tracks for the album "Californication".
+SELECT t.Name
+FROM Tracks t
+WHERE t.AlbumId = (select a.AlbumId
+FROM Albums a
+WHERE a.Title = 'Californication')
+
+#2 Find the total number of invoices for each customer along with the customer's full name, city and email.
+SELECT c.CustomerId, c.FirstName, c.LastName, c.City, c.Email, 
+COUNT(i.InvoiceId)
+FROM Customers c JOIN Invoices i
+ON c.CustomerId = i.CustomerId
+GROUP BY c.CustomerId
+
+#3 Retrieve the track name, album, artist, and trackID for all the albums.
+SELECT t.Name, a.Title, ar.Name, t.TrackId
+FROM Artists ar 
+INNER JOIN Albums a
+ON ar.ArtistId = a.ArtistId
+INNER JOIN Tracks t
+ON a.AlbumId = t.AlbumId
+
+#4 Retrieve a list with the managers last name, and the last name of the employees who report to him or her.
+SELECT mgr.LastName Manager, e.LastName Employee
+FROM Employees e
+LEFT JOIN Employees mgr
+ON e.ReportsTo = mgr.EmployeeId
+
+#5 Find the name and ID of the artists who do not have albums.
+SELECT a.Title, ar.Name, ar.ArtistId
+FROM Artists ar
+LEFT JOIN Albums a
+ON ar.ArtistId = a.ArtistId
+WHERE a.Title is NULL
+
+#6 Use a UNION to create a list of all the employee's & customer's first names and last names ordered by the last name in descending order.
+SELECT e.FirstName, e.LastName
+FROM Employees e
+UNION
+SELECT c.FirstName, c.LastName
+FROM Customers c
+ORDER BY c.LastName DESC
+
+#7 See if there are any customers who have a different city listed in their billing city versus their customer city.
+SELECT c.CustomerId, c.FirstName, c.LastName, c.City
+FROM Customers c
+JOIN Invoices i
+ON c.CustomerId = i.CustomerId
+WHERE c.City <> i.BillingCity
