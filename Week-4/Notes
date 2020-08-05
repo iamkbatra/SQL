@@ -1,0 +1,192 @@
+SQL for Data Science |  UC Davis | Coursera | Week-4
+
+Modifying and Analyzing Data
+
+Methods of Modifying Data
+Working with text strings: 
+Concatenations, For Example
+SELECT
+CompanyName
+,ContactName
+,CompanyName || '(' || ContactName || ')'
+FROM customers;
+Note: SQL server supports + instead of ||
+
+Trimming strings
+Trims the leading or trailing space from a string, For example:
+SELECT TRIM("  You the best.  ") AS Trimmed String;
+
+Substring: Returns the specified number of characters from a particular position of a given strings.
+SUBSTR(string name, string position, number of characters to be returned)
+For example:
+SELECT firstname
+,SUBSTR(firstname,2,3)
+FROM employees
+WHERE department_id=60;
+
+Given this SQL Code. What would the result of the lastname, Chambali be?
+SELECT lastname
+SUBSTR(lastname,5,7)
+FROM employees
+Output:bali
+
+Upper and Lower, For examples;
+SELECT UPPER(column_name) FROM tablename;
+SELECT LOWER(column_name) FROM tablename;
+SELECT UCASE(column_name) FROM tablename;
+
+Working with date and time strings
+Dates are stored as datetypes; Each DBMS uses it’s own variety of datetypes
+DATE: Format YYYY-MM-DD
+DATETIME: Format YYYY-MM-DD HH:MI:SS
+TIMESTAMP: Format YYYY-MM-DD HH:MI:SS
+
+If you query a DATETIME with:
+WHERE PurchaseDate='2016-12-12'
+You will get no results :(
+
+For example:
+SELECT Birthdate
+,STRFTIME('%Y', Birthdate) AS Year
+,STRFTIME('%m', Birthdate) AS Month
+,STRFTIME('%d', Birthdate) AS Day
+FROM employees
+
+Compute Current Date
+SELECT DATE('now')
+
+Compute Year, Month and Date for the Current Date
+SELECT STRFTIME('%Y %m %d', 'now')
+
+Compute Hour, Minute, Second and Milliseconds for the Current DATETIME
+SELECT STRFTIME('%H %M %S %s', 'now');
+
+Case Statements: It mimics if-then statement found in kost programming languages
+Basic set-up
+CASE
+WHEN C1 THEN E1
+WHEN C2 THEN E2
+...
+ELSE [result else]
+END
+
+For example:
+SELECT
+employeeid
+,firstname
+,lastname
+,city
+,CASE City
+WHEN 'Calgary' THEN 'Calgary'
+ELSE 'Other'
+END  calgary
+FROM Employees
+ORDER BY LastName, FirstName;
+
+Search Case Statement, For example:
+SELECT
+trackid
+,name
+,bytes
+,CASE
+WHEN bytes < 300000 THEN 'small'
+WHEN bytes >= 300001 AND bytes <= 500000 THEN 'medium'
+WHEN bytes >= 500001 THEN 'large'
+ELSE 'Other'
+END bytescategory
+FROM tracks;
+
+VIEWS 
+A stored query;  can add or remove columns without changing schema; Use it to encapsulate queries;
+Can create temporary tables and simplify, For example,
+CREATE VIEW my_view
+AS
+SELECT
+...
+Note: The view will be removed after database connection has ended
+
+Data Governance and Profiling
+Data Profiling: Looking at descriptive statistics or object data information - examining date for completeness and accuracy
+Governance Best Practices: Understand your read and write capabilities; Clean up your environments;  Undertand your promotion process.
+
+Working through a problem from begining to end
+Data Understanding; Business Understanding;  Profiling; Start with SELECT; Test; Format & Comment; Review
+
+Module-4 Quiz
+
+#1 Which of the following are supported in SQL when dealing with strings? (Select all that apply)
+LOWER; Trim; Substring; Upper; Concatenate
+
+#2 What will the result of following statement be? 
+SELECT SUBSTR('You are beautiful.', 3)
+Output: You
+
+#3 What are the results of following query?
+SELECT * orders
+WHERE order_date = '2017-07-15'
+Output: You wont get any result
+
+#4 Case statements can only be used for which of the following statements (Select all that apply)?
+Delete; Update; Select; Insert
+
+#5 Which of the following is  FASLE regarding views?
+Views will remain after the database connection has ended.
+
+#6 You are only allowed to have one condition in a case statement. True or False?
+False
+
+#7 Select the correct SQL syntax for creating a view.
+CREATE VIEW
+customers AS
+SELECT *
+FROM customers
+WHERE Name LIKE '%I'
+
+#8 Profiling data is helpful for which of the following statements? (Select all that apply)
+Filter out unwanted data elements; Understanding your data.
+
+#9 What is the most important step before beginning to write a queries?
+Understanding your data
+
+#10 When debugging a query, what should you always remember to first?
+Start simple and break it down first
+
+Module-4 Coding Questions
+
+#1 Pull a list of customer ids with the customer’s full name, and address, along with combining their city and country together. 
+Be sure to make a space in between these two and make it UPPER CASE.
+SELECT c.CustomerId, c.FirstName || ' ' || c.LastName as Full_Name, c.Address, 
+UPPER(c.City || ' ' || c.Country)
+FROM Customers c
+
+#2 Create a new employee user id by combining the first 4 letter of the employee’s first name with the first 2 letters of the employee’s last name.
+Make the new field lower case and pull each individual step to show your work.
+SELECT c.FirstName, SUBSTR(c.FirstName, 1, 4) AS FirstNameShort, c.LastName, SUBSTR(c.LastName, 1, 2) AS LastNameShort, 
+LOWER(SUBSTR(c.FirstName, 1, 4) || SUBSTR(c.LastName, 1, 2)) as NewID
+FROM Customers c
+
+#3 Show a list of employees who have worked for the company for 15 or more  -- years using the current date function. Sort by lastname ascending.
+SELECT e.LastName, e.FirstName, e.BirthDate, DATE('NOW') - e.BirthDate as Age, DATE('NOW') - e.HireDate as Tenure
+FROM Employees e
+WHERE Tenure >= 15
+ORDER BY e.LastName ASC
+
+#4 Profiling the Customers table, answer the following question.
+SELECT *
+FROM Customers c
+WHERE c.Company is NULL
+
+#5 Find the cities with the most customers and rank in descending order
+SELECT c.City, 
+COUNT(c.CustomerId)
+FROM Customers c
+GROUP BY c.City
+ORDER BY COUNT(c.CustomerId) DESC
+
+#6 Create a new customer invoice id by combining a customer’s invoice id with their first and last name while ordering your query in the following order: firstname, lastname, and invoiceID.
+SELECT c.FirstName || c.LastName || i.InvoiceId as NewInvoiceId
+FROM Customers c
+LEFT JOIN Invoices i
+ON c.CustomerId = i.CustomerId
+WHERE NewInvoiceId LIKE 'AstridGruber%'
+ORDER BY c.FirstName, c.LastName, i.InvoiceId
